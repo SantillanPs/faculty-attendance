@@ -1,0 +1,80 @@
+*,
+p {
+  padding: 0px;
+  margin: 0px;
+}
+
+/* login page css */
+.container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  height: 99vh;
+  gap: 50px;
+}
+
+.loginForm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  border: 1px solid rgb(214, 214, 214);
+  border-radius: 10px;
+  width: 500px;
+  padding: 20px;
+}
+
+.email,
+.password,
+.btn_box,
+.btn_box button {
+  width: 100%;
+}
+
+.email,
+.password,
+.btn_box {
+  margin-bottom: 10px;
+}
+
+.loginForm h2 {
+  color: rgb(0, 110, 255);
+  font-weight: 700;
+}
+
+.btn_box button {
+  font-weight: 700;
+}
+
+/* faculty dashboard css */
+img {
+  width: 50px;
+}
+
+/* administrator css */
+
+.members {
+  display: flex;
+  gap: 50px;
+}
+
+.member-profile {
+  display: flex;
+}
+
+.member-profile img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+.member {
+  border: 1px solid black;
+  width: fit-content;
+}
+
+.status-box p {
+  color: white;
+  background-color: rgb(112, 216, 64);
+}
