@@ -5,30 +5,53 @@ const bcrypt = require("bcrypt");
 const session = require("express-session");
 const app = express();
 
-const PORT = process.env.PORT || 3000;
+const saltRounds = 10;
+// const mongoose = require("./mongoDB");
 
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
+const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-app.set("views", path.join(__dirname, "/src/views"));
-app.set("view engine", "ejs");
-
 app.use(express.static(path.join(__dirname, "public")));
 
-app.get("/", (request, response) => {
-  response.render("index", { error: null });
+app.set("views", path.join(__dirname, "/src"));
+app.set("view engine", "ejs");
+
+//GET
+app.get("/", (req, res) => {
+  res.render("login", { error: null });
 });
 
-app.post("/auth/login", (request, response) => {
-  const { email, password } = request.body;
+app.get("/dashboard", (req, res) => {
+  res.render("dashboard");
+});
+
+app.get("/admin-dashboard", (req, res) => {
+  res.render("administrator");
+});
+
+app.get("/register", (req, res) => {
+  res.render("register");
+});
+
+// app.get("/users", (req, res) => {
+//   db.all(`select * from faculty`, [], (err, users) => {
+//     if (err) {
+//       console.error("Database query failed:", err);
+//       res.status(500).send("Internal Server Error");
+//     } else {
+//       res.json(users);
+//     }
+//   });
+// });
+
+//POST
+app.post("/auth/login", (req, res) => {
+  const { email, password } = req.body;
 
   db.get(`SELECT * FROM faculty WHERE email = ?`, [email], (err, user) => {
     if (err) {
-      return response
+      return res
         .status(500)
         .render("index", { error: "Internal server error." });
     }
@@ -44,48 +67,13 @@ app.post("/auth/login", (request, response) => {
         "Invalid email or Password";
     }
 
-    request.session.userId = user.id;
-    response.redirect("/dashboard");
+    req.session.userId = user.id;
+    res.redirect("/dashboard");
   });
 });
 
-app.get("/dashboard", (request, response) => {
-  response.render("dashboard");
-});
-
-app.get("/admin-dashboard", (request, response) => {
-  response.render("administrator");
-});
-
-app.use((request, response) => {
-  response.status(404).render("404");
-});
-
-app.post("/dashboard/clock-in", (request, response) => {
-  const { id } = request.body;
-  const clockInTime = new Date().toLocaleTimeString();
-  const date = new Date().toLocaleDateString();
-  const status = "On Duty";
-
-  db.run(
-    `INSERT INTO attendance (faculty_id, clock_in_time, attendance_date) VALUES (?, ?, ?)`,
-    [id, clockInTime, date],
-    (err) => {
-      if (err) return response.status(500).json({ error: err.message });
-      db.run(
-        `UPDATE faculty SET status = ? WHERE id = ?`,
-        [status, id],
-        (err) => {
-          if (err) return response.status(500).json({ error: err.message });
-          response.json({ message: "Clocked in successfully", status });
-        }
-      );
-    }
-  );
-});
-
-app.post("/dashboard/clock-out", (request, response) => {
-  const { id } = request.body;
+app.post("/dashboard/clock-out", (req, res) => {
+  const { id } = req.body;
   const clockOutTime = new Date().toLocaleTimeString();
   const date = new Date().toLocaleDateString();
   const status = "Off Duty";
@@ -94,43 +82,64 @@ app.post("/dashboard/clock-out", (request, response) => {
     `UPDATE attendance SET clock_out_time = ? WHERE faculty_id = ? AND attendance_date = ?`,
     [clockOutTime, id, date],
     (err) => {
-      if (err) return response.status(500).json({ error: err.message });
+      if (err) return res.status(500).json({ error: err.message });
       db.run(
         `UPDATE faculty SET status = ? WHERE id = ?`,
         [status, id],
         (err) => {
-          if (err) return response.status(500).json({ error: err.message });
-          response.json({ message: "Clocked out successfully", status });
+          if (err) return res.status(500).json({ error: err.message });
+          res.json({ message: "Clocked out successfully", status });
         }
       );
     }
   );
 });
 
-// const mockUsers = [
-//   { id: 1, username: "sebastian", displayName: "sebastian" },
-//   { id: 2, username: "sebastian2", displayName: "sebastian2" },
-//   { id: 3, username: "sebastian3", displayName: "sebastian3" },
-// ];
+app.post("/dashboard/clock-in", (req, res) => {
+  const { id } = req.body;
+  const clockInTime = new Date().toLocaleTimeString();
+  const date = new Date().toLocaleDateString();
+  const status = "On Duty";
 
-// app.get("/", (request, response) => {
-//   response.status(201).send({ msg: "hello world!" });
-// });
+  db.run(
+    `INSERT INTO attendance (faculty_id, clock_in_time, attendance_date) VALUES (?, ?, ?)`,
+    [id, clockInTime, date],
+    (err) => {
+      if (err) return res.status(500).json({ error: err.message });
+      db.run(
+        `UPDATE faculty SET status = ? WHERE id = ?`,
+        [status, id],
+        (err) => {
+          if (err) return res.status(500).json({ error: err.message });
+          res.json({ message: "Clocked in successfully", status });
+        }
+      );
+    }
+  );
+});
 
-// app.get("/api/users", (request, response) => {
-//   response.send(mockUsers);
-// });
+app.post("/register", async (req, res) => {
+  const { name, email, password } = req.body;
 
-// app.get("/api/users/:id", (request, response) => {
-//   console.log(request.params);
-//   const parsedId = parseInt(request.params.id);
-//   if (isNaN(parsedId)) return response.status(400).send({ msg: "bad request" });
+  if (!name || !email || !password) {
+    return res
+      .status(400)
+      .json({ error: "Please provide name, email, and password" });
+  }
 
-//   const findUser = mockUsers.find((user) => user.id === parsedId);
-//   if (!findUser) return response.sendStatus(404);
-//   return response.send(findUser);
-// });
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-// app.listen(PORT, () => {
-//   console.log(`Server running on http://localhost:${PORT}`);
-// });
+  const sql = `INSERT INTO faculty (name, email, password) VALUES (?, ?, ?)`;
+  const params = [name, email, hashedPassword];
+
+  db.run(sql, params, function (err) {
+    if (err) {
+      return res.status(400).json({ error: err.message });
+    }
+    res.status(201).json({ id: this.lastID });
+  });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
+});
