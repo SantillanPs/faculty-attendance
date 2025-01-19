@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const db = require("./database");
@@ -5,7 +6,7 @@ const bcrypt = require("bcrypt");
 const session = require("express-session");
 const app = express();
 const jwt = require("jsonwebtoken");
-const secretKey = "XsaJHmeUUEpMOnW4a9iuS6B4zOIiCqPi";
+const secretKey = process.env.SECRET_KEY;
 const saltRounds = 10;
 // const mongoose = require("./mongoDB");
 
@@ -29,14 +30,17 @@ function authenticateToken(req, res, next) {
   });
 }
 
-const PORT = process.env.PORT || 3000;
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "/src/public")));
 
 app.set("views", path.join(__dirname, "/src/views"));
 app.set("view engine", "ejs");
+
+const PORT = process.env.PORT || 3000;
+
+const STATUS_ON_DUTY = "On Duty";
+const STATUS_OFF_DUTY = "Off Duty";
 
 //GET
 app.get("/", (req, res) => {
@@ -55,80 +59,141 @@ app.get("/admin-dashboard", (req, res) => {
   res.render("administrator");
 });
 
-app.get("/register", (req, res) => {
-  res.render("register");
+app.get("/signup", (req, res) => {
+  res.render("signup");
 });
 
 //POST
-app.post("/dashboard/clock-out", (req, res) => {
+app.post("/dashboard/clock-in", authenticateToken, async (req, res) => {
   const { id } = req.body;
-  const clockOutTime = new Date().toLocaleTimeString();
-  const date = new Date().toLocaleDateString();
-  const status = "Off Duty";
 
-  db.run(
-    `UPDATE attendance SET clock_out_time = ? WHERE faculty_id = ? AND attendance_date = ?`,
-    [clockOutTime, id, date],
-    (err) => {
-      if (err) return res.status(500).json({ error: err.message });
-      db.run(
-        `UPDATE faculty SET status = ? WHERE id = ?`,
-        [status, id],
-        (err) => {
-          if (err) return res.status(500).json({ error: err.message });
-          res.json({ message: "Clocked out successfully", status });
-        }
-      );
-    }
-  );
-});
+  if (!id || isNaN(id)) {
+    return res.status(400).json({ error: "Invalid faculty ID" });
+  }
 
-app.post("/dashboard/clock-in", (req, res) => {
-  const { id } = req.body;
   const clockInTime = new Date().toLocaleTimeString();
   const date = new Date().toLocaleDateString();
-  const status = "On Duty";
 
-  db.run(
-    `INSERT INTO attendance (faculty_id, clock_in_time, attendance_date) VALUES (?, ?, ?)`,
-    [id, clockInTime, date],
-    (err) => {
-      if (err) return res.status(500).json({ error: err.message });
+  try {
+    db.serialize(() => {
+      db.run("BEGIN TRANSACTION");
+
       db.run(
-        `UPDATE faculty SET status = ? WHERE id = ?`,
-        [status, id],
-        (err) => {
-          if (err) return res.status(500).json({ error: err.message });
-          res.json({ message: "Clocked in successfully", status });
+        `INSERT INTO attendance (faculty_id, clock_in_time, attendance_date) VALUES (?, ?, ?)`[
+          (id, clockInTime, date)
+        ],
+        function (err) {
+          if (err) {
+            db.run("ROLLBACK");
+            return res.status(500).json({ error: err.message });
+          }
+
+          db.run(
+            `UPDATE faculty SET status = ? WHERE id = ?`,
+            [STATUS_ON_DUTY, id],
+            function (err) {
+              if (err) {
+                db.run("ROLLBACK");
+                return res.status(500).json({ error: err.message });
+              }
+
+              db.run("COMMIT");
+              res.json({
+                message: "Clocked in successfully",
+                status: STATUS_ON_DUTY,
+              });
+            }
+          );
         }
       );
-    }
-  );
+    });
+  } catch (error) {
+    console.error("Error during clock-in:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
-app.post("/register", async (req, res) => {
-  const { name, email, password } = req.body;
+app.post("/dashboard/clock-out", authenticateToken, async (req, res) => {
+  const { id } = req.body;
 
-  if (!name || !email || !password) {
+  // Input validation
+  if (!id || isNaN(id)) {
+    return res.status(400).json({ error: "Invalid faculty ID" });
+  }
+
+  const clockOutTime = new Date().toLocaleTimeString();
+  const date = new Date().toLocaleDateString();
+
+  try {
+    // Start a database transaction
+    db.serialize(() => {
+      db.run("BEGIN TRANSACTION");
+
+      // Update clock-out time in the attendance table
+      db.run(
+        `UPDATE attendance SET clock_out_time = ? WHERE faculty_id = ? AND attendance_date = ?`,
+        [clockOutTime, id, date],
+        function (err) {
+          if (err) {
+            db.run("ROLLBACK");
+            return res.status(500).json({ error: err.message });
+          }
+
+          // Update faculty status to "Off Duty"
+          db.run(
+            `UPDATE faculty SET status = ? WHERE id = ?`,
+            [STATUS_OFF_DUTY, id],
+            function (err) {
+              if (err) {
+                db.run("ROLLBACK");
+                return res.status(500).json({ error: err.message });
+              }
+
+              // Commit the transaction
+              db.run("COMMIT");
+              res.json({
+                message: "Clocked out successfully",
+                status: STATUS_OFF_DUTY,
+              });
+            }
+          );
+        }
+      );
+    });
+  } catch (error) {
+    console.error("Error during clock-out:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.post("/signup", async (req, res) => {
+  const { fullName, email, password } = req.body;
+
+  if (!fullName || !email || !password) {
     return res
       .status(400)
       .json({ error: "Please provide name, email, and password" });
   }
 
-  const hashedPassword = await bcrypt.hash(password, saltRounds);
+  try {
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-  const sql = `INSERT INTO faculty (name, email, password) VALUES (?, ?, ?)`;
-  const params = [name, email, hashedPassword];
+    const sql = `INSERT INTO faculty (name, email, password) VALUES (?, ?, ?)`;
+    const params = [fullName, email, hashedPassword];
 
-  db.run(sql, params, function (err) {
-    if (err) {
-      return res.status(400).json({ error: err.message });
-    }
-    res.status(201).json({ id: this.lastID });
-  });
+    db.run(sql, params, function (err) {
+      if (err) {
+        return res.status(400).json({ error: err.message });
+      }
+      res.status(201).json({ id: this.lastID });
+    });
+  } catch (error) {
+    console.error("error during registration:", error);
+    res.status9500.json({ error: "Internal server error" });
+  }
 });
 
-app.post("/login", async (req, res) => {
+app.post("/", async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {

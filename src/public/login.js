@@ -3,11 +3,11 @@ document
   .addEventListener("submit", async (event) => {
     event.preventDefault();
 
-    const email = document.getElementById("loginEmail").value;
-    const password = document.getElementById("loginPassword").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
 
     try {
-      const response = await fetch("http://localhost:3000/login", {
+      const response = await fetch("http://localhost:3000/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -19,7 +19,7 @@ document
         const data = await response.json();
         localStorage.setItem("token", data.token);
         alert("Login successful!");
-        window.location.href = "/profile";
+        window.location.href = "/dashbaord";
       } else {
         const errorData = await response.json();
         alert("Error: " + errorData.error);

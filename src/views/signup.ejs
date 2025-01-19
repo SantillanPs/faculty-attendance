@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NEMSU - Login</title>
+    <title>NEMSU - Create Account</title>
     <style>
       * {
         margin: 0;
@@ -26,7 +26,7 @@
         justify-content: center;
       }
 
-      .login-container {
+      .signup-container {
         display: flex;
         background: white;
         border-radius: 20px;
@@ -36,21 +36,21 @@
         max-width: 1000px;
       }
 
-      .login-banner {
+      .signup-banner {
         flex: 1;
         background: #f5f5f5;
         padding: 40px;
         display: none;
       }
 
-      .login-form-container {
+      .signup-form-container {
         flex: 1;
         padding: 40px;
         min-width: 320px;
       }
 
       @media (min-width: 768px) {
-        .login-banner {
+        .signup-banner {
           display: flex;
           flex-direction: column;
           justify-content: center;
@@ -107,28 +107,11 @@
         box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
       }
 
-      .remember-forgot {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-      }
-
-      .remember-me {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .remember-me input[type="checkbox"] {
-        width: 16px;
-        height: 16px;
-      }
-
-      .forgot-password {
-        color: #1a73e8;
-        text-decoration: none;
+      .error-message {
+        color: #dc3545;
         font-size: 14px;
+        margin-top: 5px;
+        display: none;
       }
 
       .submit-btn {
@@ -142,6 +125,7 @@
         font-weight: 500;
         cursor: pointer;
         transition: background 0.3s ease;
+        margin-top: 10px;
       }
 
       .submit-btn:hover {
@@ -159,7 +143,7 @@
         margin-bottom: 15px;
       }
 
-      .social-login {
+      .social-signup {
         display: flex;
         gap: 10px;
         justify-content: center;
@@ -177,13 +161,6 @@
 
       .social-btn:hover {
         background: #f5f5f5;
-      }
-
-      .error-message {
-        color: #dc3545;
-        font-size: 14px;
-        margin-top: 5px;
-        display: none;
       }
 
       .banner-content {
@@ -208,55 +185,81 @@
         margin-bottom: 30px;
       }
 
-      /* New styles for sign-up link */
-      .signup-link {
+      .login-link {
         text-align: center;
         margin-top: 20px;
         padding-top: 20px;
         border-top: 1px solid #eee;
       }
 
-      .signup-link p {
+      .login-link p {
         color: #666;
         font-size: 14px;
       }
 
-      .signup-link a {
+      .login-link a {
         color: #1a73e8;
         text-decoration: none;
         font-weight: 500;
         margin-left: 5px;
       }
 
-      .signup-link a:hover {
+      .login-link a:hover {
+        text-decoration: underline;
+      }
+
+      .terms {
+        font-size: 12px;
+        color: #666;
+        text-align: center;
+        margin-top: 15px;
+      }
+
+      .terms a {
+        color: #1a73e8;
+        text-decoration: none;
+      }
+
+      .terms a:hover {
         text-decoration: underline;
       }
     </style>
   </head>
   <body>
     <div class="container">
-      <div class="login-container">
-        <div class="login-banner">
+      <div class="signup-container">
+        <div class="signup-banner">
           <div class="banner-content">
             <img
               src="/api/placeholder/300/200"
               alt="Education"
               class="banner-image"
             />
-            <h2>Welcome to NEMSU</h2>
+            <h2>Join NEMSU Today</h2>
             <p>
-              North Eastern Mindanao State University - Your Gateway to
-              Excellence in Education
+              Start your journey with North Eastern Mindanao State University
+              and unlock a world of educational opportunities.
             </p>
           </div>
         </div>
-        <div class="login-form-container">
+        <div class="signup-form-container">
           <div class="logo">
             <img src="/api/placeholder/120/120" alt="NEMSU Logo" />
             <h1>NEMSU</h1>
-            <p>Sign in to your account</p>
+            <p>Create your account</p>
           </div>
-          <form action="/dashboard" method="POST" id="loginForm">
+          <form id="signupForm" action="/signup" method="POST">
+            <div class="form-group">
+              <label for="fullName">Full Name</label>
+              <input
+                type="text"
+                id="fullName"
+                name="fullName"
+                placeholder="Enter your full name"
+                required
+              />
+              <div class="error-message">Please enter your full name</div>
+            </div>
             <div class="form-group">
               <label for="email">Email Address</label>
               <input
@@ -276,26 +279,39 @@
                 type="password"
                 id="password"
                 name="password"
-                placeholder="Enter your password"
+                placeholder="Create a password"
                 required
               />
-              <div class="error-message">Password is required</div>
+              <div id="passwordError" class="error-message">
+                Password must be at least 8 characters
+              </div>
             </div>
-            <div class="remember-forgot">
-              <label class="remember-me">
-                <input type="checkbox" name="remember" />
-                <span>Remember me</span>
-              </label>
-              <a href="#" class="forgot-password">Forgot password?</a>
+            <div class="form-group">
+              <label for="confirmPassword">Confirm Password</label>
+              <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                placeholder="Confirm your password"
+                required
+              />
+              <div id="confirmPasswordError" class="error-message">
+                Passwords do not match
+              </div>
             </div>
-            <button type="submit" class="submit-btn">Sign In</button>
-            <div class="signup-link">
-              <p>Don't have an account?<a href="/signup">Create Account</a></p>
+            <button type="submit" class="submit-btn">Create Account</button>
+            <div class="terms">
+              By creating an account, you agree to our
+              <a href="#">Terms of Service</a> and
+              <a href="#">Privacy Policy</a>
+            </div>
+            <div class="login-link">
+              <p>Already have an account?<a href="/">Sign In</a></p>
             </div>
           </form>
         </div>
       </div>
     </div>
-    <script src="login.js"></script>
+    <script src="signup.js"></script>
   </body>
 </html>
