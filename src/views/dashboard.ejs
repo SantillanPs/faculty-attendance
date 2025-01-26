@@ -3,57 +3,203 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard</title>
+    <title>Faculty Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      .glass-card {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.125);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+      }
+    </style>
   </head>
-  <body>
-    <h1>NEMSU - FACULTY</h1>
-    <div>
-      <div>
-        <div>
-          <img src="profile.jpg" />
-          <div>
-            <h2>John doe</h2>
-            <h3>Faculty</h3>
+  <body
+    class="bg-gradient-to-br from-blue-50 via-white to-blue-50 min-h-screen flex items-center justify-center p-4"
+  >
+    <div class="container mx-auto max-w-6xl">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Profile Section -->
+        <div class="md:col-span-1 space-y-6">
+          <div class="glass-card p-6 text-center">
+            <img
+              src="/img/profile.jpg"
+              alt="Profile"
+              class="w-32 h-32 rounded-full mx-auto mb-4 object-cover border-4 border-white shadow-lg"
+            />
+            <h2 class="text-2xl font-bold text-gray-800">Dr. Emily Roberts</h2>
+            <p class="text-blue-600 font-medium">Senior Faculty Member</p>
+
+            <div class="mt-6 bg-blue-50 rounded-lg p-4">
+              <div
+                id="currentTime"
+                class="text-3xl font-bold text-blue-700 mb-2"
+              ></div>
+              <button
+                id="clockInBtn"
+                class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition"
+              >
+                Clock In
+              </button>
+            </div>
           </div>
-        </div>
-        <button id="clockButton">Clock In</button>
-        <div>
-          <form action="dashboard.html">
-            <label>Request Leaves</label>
-            <div>
-              <div>
-                <input
-                  type="radio"
-                  id="annual"
-                  value="ANNUAL"
-                  name="type_leave"
-                />
-                <label for="annual">Annual Leave</label>
+
+          <!-- Quick Stats Card -->
+          <div class="glass-card p-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">
+              Attendance Overview
+            </h3>
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <i class="fas fa-users text-blue-600 mr-3"></i>
+                  <span>Total Staff</span>
+                </div>
+                <span class="font-bold text-gray-800">125</span>
               </div>
-              <div>
-                <input type="radio" id="sick" value="SICK" name="type_leave" />
-                <label for="sick">Sick leave</label>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <i class="fas fa-check-circle text-green-600 mr-3"></i>
+                  <span>Checked In</span>
+                </div>
+                <span class="font-bold text-gray-800">98</span>
               </div>
-              <div>
-                <input type="radio" id="paid" value="PAID" name="type_leave" />
-                <label for="paid">Paid Holiday</label>
-              </div>
-              <div>
-                <textarea name="Message" id="message"></textarea>
-              </div>
-              <div>
-                <input
-                  type="submit"
-                  class="btn btn-dark"
-                  value="Submit Request"
-                />
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <i class="fas fa-user-slash text-red-600 mr-3"></i>
+                  <span>Absent</span>
+                </div>
+                <span class="font-bold text-gray-800">27</span>
               </div>
             </div>
-          </form>
+          </div>
+        </div>
+
+        <!-- Main Content Section -->
+        <div class="md:col-span-2 space-y-6">
+          <!-- Attendance Calendar -->
+          <div class="glass-card p-6">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-2xl font-bold text-gray-800">
+                Attendance Calendar
+              </h2>
+              <div class="flex space-x-2">
+                <select
+                  id="monthSelect"
+                  class="p-2 border rounded text-gray-700"
+                >
+                  <option value="0">January</option>
+                  <option value="1">February</option>
+                  <option value="2">March</option>
+                  <option value="3">April</option>
+                  <option value="4">May</option>
+                  <option value="5">June</option>
+                  <option value="6">July</option>
+                  <option value="7">August</option>
+                  <option value="8">September</option>
+                  <option value="9">October</option>
+                  <option value="10">November</option>
+                  <option value="11">December</option>
+                </select>
+                <select
+                  id="yearSelect"
+                  class="p-2 border rounded text-gray-700"
+                ></select>
+              </div>
+            </div>
+
+            <!-- Calendar Grid -->
+            <div class="grid grid-cols-7 gap-2 text-center">
+              <!-- Days of the Week -->
+              <div class="text-gray-500">Sun</div>
+              <div class="text-gray-500">Mon</div>
+              <div class="text-gray-500">Tue</div>
+              <div class="text-gray-500">Wed</div>
+              <div class="text-gray-500">Thu</div>
+              <div class="text-gray-500">Fri</div>
+              <div class="text-gray-500">Sat</div>
+
+              <!-- Calendar Days (Dynamically Populated) -->
+              <div
+                id="calendarDays"
+                class="col-span-7 grid grid-cols-7 gap-2"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Leave Request Section -->
+          <div class="glass-card p-6">
+            <!-- Leave Request Header -->
+            <div
+              class="flex justify-between items-center cursor-pointer"
+              onclick="toggleLeaveRequest()"
+            >
+              <h2 class="text-2xl font-bold text-gray-800">Leave Request</h2>
+              <i
+                id="leaveRequestIcon"
+                class="fas fa-chevron-down text-blue-500 transition-transform"
+              ></i>
+            </div>
+
+            <!-- Leave Request Form (Hidden by Default) -->
+            <div id="leaveRequestFormContainer" class="mt-4 hidden">
+              <form class="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-gray-700 mb-2">Leave Type</label>
+                  <select class="w-full p-3 border rounded">
+                    <option>Sick Leave</option>
+                    <option>Casual Leave</option>
+                    <option>Academic Leave</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-gray-700 mb-2">Duration</label>
+                  <select class="w-full p-3 border rounded">
+                    <option>Half Day</option>
+                    <option>Full Day</option>
+                    <option>Multiple Days</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-gray-700 mb-2">Start Date</label>
+                  <input type="date" class="w-full p-3 border rounded" />
+                </div>
+                <div>
+                  <label class="block text-gray-700 mb-2">End Date</label>
+                  <input type="date" class="w-full p-3 border rounded" />
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-gray-700 mb-2">Reason</label>
+                  <textarea
+                    class="w-full p-3 border rounded"
+                    rows="4"
+                  ></textarea>
+                </div>
+                <div class="md:col-span-2">
+                  <button
+                    class="w-full bg-blue-600 text-white py-3 rounded hover:bg-blue-700 transition"
+                  >
+                    Submit Leave Request
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    <script src="dashboard.js"></script>
+    <script src="/js/dashboard.js"></script>
   </body>
 </html>

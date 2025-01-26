@@ -7,7 +7,7 @@ document
     const password = document.getElementById("password").value;
 
     try {
-      const response = await fetch("http://localhost:3000/", {
+      const response = await fetch("http://localhost:3000/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -18,8 +18,9 @@ document
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem("token", data.token);
-        alert("Login successful!");
-        window.location.href = "/dashbaord";
+        console.log("Token stored in localStorage:", data.token);
+        // alert("Login successful!");
+        window.location.href = "/dashboard";
       } else {
         const errorData = await response.json();
         alert("Error: " + errorData.error);
