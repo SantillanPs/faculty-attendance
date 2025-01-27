@@ -1,26 +1,28 @@
 const express = require("express");
-const app = express.Router();
+const router = express.Router();
 const saltRounds = 10;
 const db = require("../../config/database");
 const bcrypt = require("bcrypt");
 
-const STATUS_ON_DUTY = "On Duty";
-const STATUS_OFF_DUTY = "Off Duty";
-
-app.get("/dashboard", (req, res) => {
+router.get("/dashboard", (req, res) => {
   res.render("dashboard");
 });
 
-app.get("/admin-dashboard", (req, res) => {
-  res.render("administrator");
+router.get("/hr-dashboard", (req, res) => {
+  res.render("hr");
 });
 
-app.get("/form", (req, res) => {
+router.get("/form", (req, res) => {
   res.render("form");
 });
 
-app.get("/delete-users", (req, res) => {
-  const query = "delete from faculty";
+//GET
+router.get("/", (req, res) => {
+  res.render("landingpage", { error: null });
+});
+
+router.get("/delete-user", (req, res) => {
+  const query = "DELETE FROM employees WHERE id = 5;";
   db.all(query, [], (err) => {
     if (err) {
       res.status(500).json({ error: err.message });
@@ -29,18 +31,17 @@ app.get("/delete-users", (req, res) => {
   });
 });
 //, , ,
-app.get("/droptables", (req, res) => {
-  const query =
-    "CREATE TABLE leave_requests (id INTEGER PRIMARY KEY AUTOINCREMENT,employee_id INTEGER NOT NULL,type TEXT NOT NULL,duration TEXT NOT NULL,start_date TEXT NOT NULL,end_date TEXT NOT NULL,reason TEXT NOT NULL,status TEXT DEFAULT 'Pending',FOREIGN KEY (employee_id) REFERENCES employees (id));";
+router.get("/drop", (req, res) => {
+  const query = "ALTER TABLE employees DROP COLUMN phone;";
   db.all(query, [], (err) => {
     if (err) {
       res.status(500).json({ error: err.message });
     }
-    res.json("successfully created table");
+    res.json("successfully modified table");
   });
 });
 
-app.get("/users", (req, res) => {
+router.get("/users", (req, res) => {
   const query = "select * from faculty";
   db.all(query, [], (err, users) => {
     if (err) {
@@ -51,12 +52,7 @@ app.get("/users", (req, res) => {
   });
 });
 
-//POST
-app.post("/dashboard/clock-in", async (req, res) => {});
-
-app.post("/dashboard/clock-out", async (req, res) => {});
-
-app.post("/signup", async (req, res) => {
+router.post("/signup", async (req, res) => {
   const { fullName, email, password } = req.body;
 
   if (!fullName || !email || !password) {
@@ -83,4 +79,4 @@ app.post("/signup", async (req, res) => {
   }
 });
 
-module.exports = app;
+module.exports = router;

@@ -49,4 +49,36 @@ router.get("/", (req, res) => {
   });
 });
 
+// Fetch Faculty Member by ID
+router.get("/:id", (req, res) => {
+  const { id } = req.params;
+  const query = "SELECT * FROM employees WHERE id = ?";
+  db.get(query, [id], (err, row) => {
+    if (err) {
+      return res.status(400).json({ error: err.message });
+    }
+    if (!row) {
+      return res.status(404).json({ error: "Employee not found" });
+    }
+    res.json(row);
+  });
+});
+
+// src/routes/attendance.js
+router.get("/:employeeId/status", (req, res) => {
+  const query = `
+    SELECT * FROM attendance
+    WHERE employee_id = ? AND date = ?
+    ORDER BY clock_in_time DESC
+    LIMIT 1
+  `;
+  const currentDate = new Date().toISOString().split("T")[0]; // Get current date in YYYY-MM-DD format
+  db.get(query, [req.params.employeeId, currentDate], (err, row) => {
+    if (err) {
+      return res.status(400).json({ error: err.message });
+    }
+    res.json(row);
+  });
+});
+
 module.exports = router;

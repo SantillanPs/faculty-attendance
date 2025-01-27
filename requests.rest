@@ -4,17 +4,43 @@ GET http://localhost:3000/users
 
 ###
 
-POST http://localhost:3000/signup
+POST http://localhost:3000/api/employees
 //register an account
 Content-Type: application/json
 
 {
-  "fullName": "sebastian",
-  "email": "mail1@gmail",
-  "password": "password2"
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john.doe@example.com",
+  "phone": "1234567890",
+  "department": "IT",
+  "designation": "Software Engineer",
+  "dateOfJoining": "2024-01-01",
+  "employmentType": "Full-time",
+  "profilePicture": "profile.jpg"
 }
 
 
 ###
 
-GET http://localhost:3000/droptables
+//retreive employees
+GET http://localhost:3000/api/leave-requests
+
+
+###
+
+POST http://localhost:3000/api/employees
+//post leave request
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "smith",
+  "email": "asdasda@example.com",
+  "phone": "1234567890",
+  "department": "Faculty",
+  "designation": "professor",
+  "dateOfJoining": "2025-01-027",
+  "employmentType": "Full-time",
+  "profilePicture": "admin.jpg"
+}
