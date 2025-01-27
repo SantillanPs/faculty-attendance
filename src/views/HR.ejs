@@ -24,6 +24,14 @@
         border: 1px solid rgba(255, 255, 255, 0.125);
         box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
       }
+
+      /* Make the table header sticky */
+      #employeeDirectory thead th {
+        position: sticky;
+        top: 0;
+        background-color: #f3f4f6; /* Match the header background color */
+        z-index: 1;
+      }
     </style>
   </head>
   <body
@@ -62,7 +70,7 @@
 
         <!-- Main Content Section -->
         <div class="md:col-span-2 space-y-6">
-          <!-- Employee Directory -->
+          <!-- Employee Directory Section -->
           <div class="glass-card p-6">
             <div class="flex justify-between items-center mb-6">
               <h2 class="text-2xl font-bold text-gray-800">
@@ -76,7 +84,8 @@
               />
             </div>
 
-            <div class="overflow-x-auto">
+            <!-- Add max-height and overflow-y to make the table scrollable -->
+            <div class="overflow-x-auto max-h-48 overflow-y-auto">
               <table id="employeeDirectory" class="w-full">
                 <thead>
                   <tr class="bg-gray-100 text-gray-600">
