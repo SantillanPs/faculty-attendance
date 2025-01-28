@@ -61,8 +61,27 @@ function updateUserDetails(user) {
   // You can also update attendance, leave request, etc., based on the selected user
 }
 
+// Track the clock-in status
+let isClockedIn = false;
+
+// Function to update the clock-in status indicator
+function updateClockStatus() {
+  const clockStatus = document.getElementById("clockStatus");
+  if (isClockedIn) {
+    clockStatus.classList.remove("clocked-out");
+    clockStatus.classList.add("clocked-in");
+  } else {
+    clockStatus.classList.remove("clocked-in");
+    clockStatus.classList.add("clocked-out");
+  }
+}
+
 // Clock In
 document.getElementById("clockInBtn").addEventListener("click", async () => {
+  isClockedIn = true;
+  updateClockStatus();
+  alert("You have clocked in.");
+
   const userSelect = document.getElementById("userSelect");
   const selectedUserId = userSelect.value; // Get the selected user ID
 
@@ -97,6 +116,10 @@ document.getElementById("clockInBtn").addEventListener("click", async () => {
 });
 // Clock Out
 document.getElementById("clockOutBtn").addEventListener("click", async () => {
+  isClockedIn = false;
+  updateClockStatus();
+  alert("You have clocked out.");
+
   const userSelect = document.getElementById("userSelect");
   const selectedUserId = userSelect.value; // Get the selected user ID
 
@@ -126,6 +149,7 @@ document.getElementById("clockOutBtn").addEventListener("click", async () => {
     alert("An error occurred. Please try again.");
   }
 });
+
 async function fetchAttendanceData(userId) {
   try {
     const response = await fetch(`/api/attendance/userId=${userId}`); // Filter by user ID
@@ -312,7 +336,6 @@ function updateCalendar() {
 monthSelect.addEventListener("change", updateCalendar);
 yearSelect.addEventListener("change", updateCalendar);
 
-// Initialize the page
 fetchUsers();
-// Initial Render
 populateYearDropdown();
+updateClockStatus();
