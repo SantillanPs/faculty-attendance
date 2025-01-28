@@ -9,7 +9,7 @@ router.get("/dashboard", (req, res) => {
 });
 
 router.get("/hr-dashboard", (req, res) => {
-  res.render("hr");
+  res.render("hrdashboard");
 });
 
 router.get("/form", (req, res) => {
