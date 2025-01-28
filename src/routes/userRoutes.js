@@ -21,62 +21,62 @@ router.get("/", (req, res) => {
   res.render("landingpage", { error: null });
 });
 
-router.get("/delete-user", (req, res) => {
-  const query = "DELETE FROM employees WHERE id = 5;";
-  db.all(query, [], (err) => {
-    if (err) {
-      res.status(500).json({ error: err.message });
-    }
-    res.json("successfully cleared table");
-  });
-});
-//, , ,
-router.get("/drop", (req, res) => {
-  const query = "ALTER TABLE employees DROP COLUMN phone;";
-  db.all(query, [], (err) => {
-    if (err) {
-      res.status(500).json({ error: err.message });
-    }
-    res.json("successfully modified table");
-  });
-});
+// router.get("/delete-user", (req, res) => {
+//   const query = "DELETE FROM employees WHERE id = 5;";
+//   db.all(query, [], (err) => {
+//     if (err) {
+//       res.status(500).json({ error: err.message });
+//     }
+//     res.json("successfully cleared table");
+//   });
+// });
 
-router.get("/users", (req, res) => {
-  const query = "select * from faculty";
-  db.all(query, [], (err, users) => {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
-    res.json(users);
-  });
-});
+// router.get("/drop", (req, res) => {
+//   const query = "ALTER TABLE employees DROP COLUMN phone;";
+//   db.all(query, [], (err) => {
+//     if (err) {
+//       res.status(500).json({ error: err.message });
+//     }
+//     res.json("successfully modified table");
+//   });
+// });
 
-router.post("/signup", async (req, res) => {
-  const { fullName, email, password } = req.body;
+// router.get("/users", (req, res) => {
+//   const query = "select * from faculty";
+//   db.all(query, [], (err, users) => {
+//     if (err) {
+//       res.status(500).json({ error: err.message });
+//       return;
+//     }
+//     res.json(users);
+//   });
+// });
 
-  if (!fullName || !email || !password) {
-    return res
-      .status(400)
-      .json({ error: "Please provide name, email, and password" });
-  }
+// router.post("/signup", async (req, res) => {
+//   const { fullName, email, password } = req.body;
 
-  try {
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+//   if (!fullName || !email || !password) {
+//     return res
+//       .status(400)
+//       .json({ error: "Please provide name, email, and password" });
+//   }
 
-    const sql = `INSERT INTO faculty (name, email, password) VALUES (?, ?, ?)`;
-    const params = [fullName, email, hashedPassword];
+//   try {
+//     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    db.run(sql, params, function (err) {
-      if (err) {
-        return res.status(400).json({ error: err.message });
-      }
-      res.status(201).json({ id: this.lastID });
-    });
-  } catch (error) {
-    console.error("error during registration:", error);
-    res.status9500.json({ error: "Internal server error" });
-  }
-});
+//     const sql = `INSERT INTO faculty (name, email, password) VALUES (?, ?, ?)`;
+//     const params = [fullName, email, hashedPassword];
+
+//     db.run(sql, params, function (err) {
+//       if (err) {
+//         return res.status(400).json({ error: err.message });
+//       }
+//       res.status(201).json({ id: this.lastID });
+//     });
+//   } catch (error) {
+//     console.error("error during registration:", error);
+//     res.status9500.json({ error: "Internal server error" });
+//   }
+// });
 
 module.exports = router;
