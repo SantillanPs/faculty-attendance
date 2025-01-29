@@ -34,7 +34,8 @@ document
         throw new Error(result.message || "Failed to add employee.");
       }
 
-      // alert("Employee added successfully!");
+      alert("Employee added successfully!");
+      window.location.href = "hr-dashboard";
       e.target.reset();
       profilePicturePreview.src = "#";
       profilePicturePreview.classList.add("hidden");

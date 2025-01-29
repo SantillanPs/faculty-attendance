@@ -80,19 +80,28 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   ];
 
   db.run(query, params, function (err) {
-    if (err) {
-      console.error("Error inserting employee:", err);
-      return res.status(500).json({ message: "Failed to add employee." });
-    }
     res.json({
       message: "Employee added successfully!",
       employeeId: this.lastID,
     });
   });
-  const filePath = req.file.path;
-  res.json({
-    message: "File uploaded successfully!",
-    filePath: filePath,
+  // const filePath = req.file.path;
+  // res.json({
+  //   message: "File uploaded successfully!",
+  //   filePath: filePath,
+  // });
+});
+
+app.get("/delete-user/:id", (req, res) => {
+  const userId = req.params.id;
+  const query = "DELETE FROM employees WHERE id = ?";
+
+  db.run(query, [userId], (err) => {
+    if (err) {
+      console.error("Error inserting employee:", err);
+      return res.status(500).json({ message: "Failed to add employee." });
+    }
+    res.json({ message: "user deleted successfully" });
   });
 });
 
