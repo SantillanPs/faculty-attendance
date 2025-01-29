@@ -207,23 +207,6 @@ document
     renderEmployeeDirectory(filteredEmployees);
   });
 
-// document
-//   .querySelector("#leaveRequestsContainer")
-//   .addEventListener("input", async (e) => {
-//     const searchTerm = e.target.value.toLowerCase();
-//     const leaveRequests = await fetchLeaveRequests();
-
-//     // Filter leave requests based on the search term
-//     const filteredRequests = leaveRequests.filter((request) =>
-//       `${request.employees.first_name} ${request.employees.last_name}`
-//         .toLowerCase()
-//         .includes(searchTerm)
-//     );
-
-//     // Re-render the leave requests with filtered results
-//     renderLeaveRequests(filteredRequests);
-//   });
-
 document.querySelector("#leaveSearch").addEventListener("input", async (e) => {
   const searchTerm = e.target.value.toLowerCase();
   const leaveRequests = await fetchLeaveRequests();
