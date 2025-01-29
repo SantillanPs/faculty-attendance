@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../../config/database");
+const { error } = require("console");
 
 router.post("/", (req, res) => {
   const {
@@ -49,36 +50,30 @@ router.get("/", (req, res) => {
   });
 });
 
-// Fetch Faculty Member by ID
+router.get("/:employeeId/status", async (req, res) => {
+  const { employeeId } = req.params;
+
+  try {
+    const row = await db.get(
+      "SELECT is_logged_in FROM employees WHERE id = ?",
+      [employeeId]
+    );
+    res.status(200).json({ is_logged_in: row.is_logged_in });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: "Failed to fetch status." });
+  }
+});
+
 router.get("/:id", (req, res) => {
-  const { id } = req.params;
+  const params = req.params.id; // Use the ID from the URL
   const query = "SELECT * FROM employees WHERE id = ?";
-  db.get(query, [id], (err, row) => {
-    if (err) {
-      return res.status(400).json({ error: err.message });
+  db.get(query, [params], (error, user) => {
+    if (error) {
+      console.error("Error", error);
+      res.status(500).json({ error: "Failed to fetch employee" });
     }
-    if (!row) {
-      return res.status(404).json({ error: "Employee not found" });
-    }
-    res.json(row);
+    res.json(user);
   });
 });
-
-// src/routes/attendance.js
-router.get("/:employeeId/status", (req, res) => {
-  const query = `
-    SELECT * FROM attendance
-    WHERE employee_id = ? AND date = ?
-    ORDER BY clock_in_time DESC
-    LIMIT 1
-  `;
-  const currentDate = new Date().toISOString().split("T")[0]; // Get current date in YYYY-MM-DD format
-  db.get(query, [req.params.employeeId, currentDate], (err, row) => {
-    if (err) {
-      return res.status(400).json({ error: err.message });
-    }
-    res.json(row);
-  });
-});
-
 module.exports = router;

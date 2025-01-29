@@ -31,15 +31,16 @@ router.get("/", (req, res) => {
 //   });
 // });
 
-// router.get("/drop", (req, res) => {
-//   const query = "ALTER TABLE employees DROP COLUMN phone;";
-//   db.all(query, [], (err) => {
-//     if (err) {
-//       res.status(500).json({ error: err.message });
-//     }
-//     res.json("successfully modified table");
-//   });
-// });
+router.get("/drop", (req, res) => {
+  const query =
+    "ALTER TABLE employees ADD COLUMN is_logged_in BOOLEAN DEFAULT FALSE;";
+  db.all(query, [], (err) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+    }
+    res.json("successfully modified table");
+  });
+});
 
 // router.get("/users", (req, res) => {
 //   const query = "select * from faculty";

@@ -29,19 +29,59 @@
       }
 
       /* Clocked in */
-      #clockStatus.clocked-in {
+      #clockStatus .clocked-in {
         background-color: #10b981; /* Green */
       }
 
       /* Clocked out */
-      #clockStatus.clocked-out {
+      #clockStatus .clocked-out {
         background-color: #6b7280; /* Gray */
+      }
+      /* Glowing border for clocked-in state */
+      #profilePhoto.clocked-in {
+        box-shadow: 0 0 15px 5px rgba(16, 185, 129, 0.8); /* Green glow */
+        border: 2px solid #10b981; /* Solid green border */
+      }
+
+      /* Default state (no glow) */
+      #profilePhoto {
+        transition: box-shadow 0.3s ease, border 0.3s ease; /* Smooth transition */
+      }
+      @keyframes pulse-glow {
+        0% {
+          box-shadow: 0 0 15px 5px rgba(16, 185, 129, 0.8);
+        }
+        50% {
+          box-shadow: 0 0 20px 10px rgba(16, 185, 129, 0.8);
+        }
+        100% {
+          box-shadow: 0 0 15px 5px rgba(16, 185, 129, 0.8);
+        }
+      }
+
+      #profilePhoto.clocked-in {
+        animation: pulse-glow 1.5s infinite;
       }
     </style>
   </head>
   <body
     class="bg-gradient-to-br from-blue-50 via-white to-blue-50 min-h-screen flex items-center justify-center p-4"
   >
+    <!-- Fixed HR Button -->
+    <a href="/hr-dashboard" class="fixed top-4 right-4 z-50">
+      <button
+        class="glass-card px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-300 shadow-lg flex items-center space-x-2 group"
+      >
+        <i
+          class="opacity-50 group-hover:opacity-100 transition-opacity duration-300 fas fa-users-cog"
+        ></i>
+        <span
+          class="opacity-50 group-hover:opacity-100 transition-opacity duration-300 hidden md:inline"
+          >HR Portal</span
+        >
+      </button>
+    </a>
+
     <div class="container mx-auto max-w-6xl">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Profile Section -->
@@ -52,12 +92,13 @@
               src="/img/profile.jpg"
               alt="Profile"
               class="w-32 h-32 rounded-full mx-auto mb-4 object-cover border-4 border-white shadow-lg"
+              title="Clocked Out"
             />
             <h2 id="profileName" class="text-2xl font-bold text-gray-800">
               <!-- Clock-in status indicator -->
               <span
                 id="clockStatus"
-                class="ml-2 inline-block w-3 h-3 rounded-full"
+                class="clock-in ml-2 inline-block w-3 h-3 rounded-full"
               ></span>
             </h2>
             <p id="designation" class="text-blue-600 font-medium"></p>
@@ -89,7 +130,7 @@
               </button>
               <button
                 id="clockOutBtn"
-                class="w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition mt-2"
+                class="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition mt-2"
               >
                 Clock Out
               </button>

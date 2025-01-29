@@ -1,3 +1,66 @@
+async function fetchClockStatus(userId) {
+  try {
+    const response = await fetch(`/api/attendance/${userId}/status`);
+    console.log(response);
+    if (response.ok) {
+      const data = await response.json();
+      return data.is_logged_in; // Return the status from the database
+    } else {
+      console.error("Failed to fetch clock status.");
+      return false; // Default to false if the request fails
+    }
+  } catch (error) {
+    console.error("Error fetching clock status:", error);
+    return false; // Default to false if an error occurs
+  }
+}
+
+// Function to update the clock-in status indicator
+function updateClockStatus(isClockedIn) {
+  const profilePhoto = document.getElementById("profilePhoto");
+  const clockInBtn = document.getElementById("clockInBtn");
+  const clockOutBtn = document.getElementById("clockOutBtn");
+
+  if (!profilePhoto) {
+    console.error("Error: #profilePhoto element not found!");
+    return;
+  }
+
+  // Update the class based on the clock-in status
+  if (isClockedIn) {
+    clockInBtn.classList.add("hidden");
+    clockInBtn.classList.remove("block");
+
+    clockOutBtn.classList.add("block");
+    clockOutBtn.classList.remove("hidden");
+
+    profilePhoto.classList.add("clocked-in");
+  } else {
+    profilePhoto.classList.remove("clocked-in");
+
+    clockOutBtn.classList.remove("block");
+    clockOutBtn.classList.add("hidden");
+
+    clockInBtn.classList.add("block");
+    clockInBtn.classList.remove("hidden");
+  }
+}
+// Update user-related information on the page
+function updateUserDetails(user) {
+  const first_name = user.first_name;
+  const last_name = user.last_name;
+
+  const photo = document.getElementById("profilePhoto");
+  const photoUrl = user.profile_picture;
+  photo.src = `/img/${photoUrl}`;
+  document.getElementById(
+    "profileName"
+  ).textContent = `${first_name} ${last_name}`;
+  document.getElementById("designation").textContent = user.designation;
+
+  // You can also update attendance, leave request, etc., based on the selected user
+}
+
 // Fetch users and populate the dropdown
 async function fetchUsers() {
   try {
@@ -28,65 +91,34 @@ async function fetchUsers() {
   }
 }
 
-function changeUser() {
+async function changeUser() {
   const userSelect = document.getElementById("userSelect");
   const selectedUserId = userSelect.value;
 
   // Fetch selected user details
-  fetch(`/api/employees/${selectedUserId}`) // Replace with your actual API endpoint
-    .then((response) => response.json())
-    .then((user) => {
-      updateUserDetails(user);
-      // Re-render the calendar for the selected user
-      renderCalendar(selectedUserId); // Pass the selected user ID
-    })
-    .catch((error) => {
-      console.error("Error fetching user details:", error);
-    });
-}
+  try {
+    const userResponse = await fetch(`/api/employees/${selectedUserId}`);
+    const user = await userResponse.json();
+    updateUserDetails(user);
 
-// Update user-related information on the page
-function updateUserDetails(user) {
-  const first_name = user.first_name;
-  const last_name = user.last_name;
+    // Fetch and update the clock status
+    const isClockedIn = await fetchClockStatus(selectedUserId);
+    updateClockStatus(isClockedIn);
 
-  const photo = document.getElementById("profilePhoto");
-  const photoUrl = user.profile_picture;
-  photo.src = `/img/${photoUrl}`;
-  document.getElementById(
-    "profileName"
-  ).textContent = `${first_name} ${last_name}`;
-  document.getElementById("designation").textContent = user.designation;
-
-  // You can also update attendance, leave request, etc., based on the selected user
-}
-
-// Track the clock-in status
-let isClockedIn = false;
-
-// Function to update the clock-in status indicator
-function updateClockStatus() {
-  const clockStatus = document.getElementById("clockStatus");
-  if (isClockedIn) {
-    clockStatus.classList.remove("clocked-out");
-    clockStatus.classList.add("clocked-in");
-  } else {
-    clockStatus.classList.remove("clocked-in");
-    clockStatus.classList.add("clocked-out");
+    // Re-render the calendar for the selected user
+    renderCalendar(selectedUserId);
+  } catch (error) {
+    console.error("Error fetching user details:", error);
   }
 }
 
 // Clock In
 document.getElementById("clockInBtn").addEventListener("click", async () => {
-  isClockedIn = true;
-  updateClockStatus();
-  alert("You have clocked in.");
-
   const userSelect = document.getElementById("userSelect");
-  const selectedUserId = userSelect.value; // Get the selected user ID
+  const selectedUserId = userSelect.value;
 
-  const currentTime = new Date().toLocaleTimeString(); // Local time
-  const currentDate = new Date().toLocaleDateString("en-CA"); // Local date in YYYY-MM-DD format
+  const currentTime = new Date().toLocaleTimeString();
+  const currentDate = new Date().toLocaleDateString("en-CA");
 
   try {
     const response = await fetch("/api/attendance", {
@@ -95,17 +127,17 @@ document.getElementById("clockInBtn").addEventListener("click", async () => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        employeeId: selectedUserId, // Use the selected user ID
+        employeeId: selectedUserId,
         clockInTime: currentTime,
         status: "Present",
-        date: currentDate, // Use local date
+        date: currentDate,
+        is_logged_in: true, // Set is_logged_in to true in the database
       }),
     });
 
     if (response.ok) {
-      // console.log(`Clocked in at ${currentTime}`);
-      // Reload the calendar after successful clock-in
-      renderCalendar(selectedUserId); // Pass the selected user ID
+      const isClockedIn = await fetchClockStatus(selectedUserId); // Fetch the updated status
+      updateClockStatus(isClockedIn); // Update the UI
     } else {
       alert("Failed to clock in. Please try again.");
     }
@@ -114,14 +146,11 @@ document.getElementById("clockInBtn").addEventListener("click", async () => {
     alert("An error occurred. Please try again.");
   }
 });
+
 // Clock Out
 document.getElementById("clockOutBtn").addEventListener("click", async () => {
-  isClockedIn = false;
-  updateClockStatus();
-  alert("You have clocked out.");
-
   const userSelect = document.getElementById("userSelect");
-  const selectedUserId = userSelect.value; // Get the selected user ID
+  const selectedUserId = userSelect.value;
 
   const currentTime = new Date().toLocaleTimeString();
 
@@ -135,12 +164,14 @@ document.getElementById("clockOutBtn").addEventListener("click", async () => {
         },
         body: JSON.stringify({
           clockOutTime: currentTime,
+          is_logged_in: false, // Set is_logged_in to false in the database
         }),
       }
     );
 
     if (response.ok) {
-      console.log(`Clocked out at ${currentTime}`);
+      const isClockedIn = await fetchClockStatus(selectedUserId); // Fetch the updated status
+      updateClockStatus(isClockedIn); // Update the UI
     } else {
       alert("Failed to clock out. Please try again.");
     }
@@ -332,10 +363,13 @@ function updateCalendar() {
   renderCalendar(); // Re-render the calendar
 }
 
-// Event Listeners
-monthSelect.addEventListener("change", updateCalendar);
-yearSelect.addEventListener("change", updateCalendar);
+async function initializeDashboard() {
+  const defaultUserId = 1; // Default user ID
+  const isClockedIn = await fetchClockStatus(defaultUserId);
+  updateClockStatus(isClockedIn);
+  fetchUsers();
+  populateYearDropdown();
+}
 
-fetchUsers();
-populateYearDropdown();
-updateClockStatus();
+// Call the initialization function when the page loads
+initializeDashboard();
