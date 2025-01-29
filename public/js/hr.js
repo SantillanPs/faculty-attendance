@@ -1,3 +1,23 @@
+function toggleLeaveRequests() {
+  const container = document.getElementById("leaveRequestsContainer");
+  const arrow = document.querySelector(".dropdown-arrow");
+
+  if (container.classList.contains("max-h-0")) {
+    container.classList.remove("max-h-0");
+    container.classList.add("max-h-64");
+    arrow.classList.add("active");
+  } else {
+    container.classList.remove("max-h-64");
+    container.classList.add("max-h-0");
+    arrow.classList.remove("active");
+  }
+}
+
+// Prevent search input from triggering dropdown
+document.getElementById("leaveSearch").addEventListener("click", function (e) {
+  e.stopPropagation();
+});
+
 async function fetchEmployees() {
   try {
     const response = await fetch("/api/employees"); // Replace with your actual API endpoint
@@ -66,51 +86,59 @@ async function renderLeaveRequests(filteredRequests = null) {
     requestElement.classList.add("leave-request-card", "p-4");
 
     requestElement.innerHTML = `
-      <div class="flex justify-between items-start bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
-        <div class="flex items-start space-x-4 flex-1">
-          <div class="flex-1">
-            <div class="font-semibold text-xl text-gray-800 flex gap-4 mb-2">
-              <img src="/img/${request.employee.profile_picture}" alt="${request.employee.first_name} ${request.employee.last_name}" class="w-16 h-16 rounded-full object-cover border-2 border-gray-200">
-              <div class="font-semibold text-xl text-gray-800 mb-2">
-                <h3 class="font-semibold text-xl text-gray-800 mb-1">
-                  ${request.employee.first_name} ${request.employee.last_name}
-                </h3>
-                <p class="text-sm text-gray-600 mb-4">
-                  <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                    ${request.type}
-                  </span>
-                  <span class="ml-2">${request.duration}</span>
-                </p>
-              </div>
-            </div>
-            <div class="bg-gray-50 p-4 rounded-lg mb-4">
-              <p class="text-gray-700 font-medium mb-1">Reason:</p>
-              <p class="text-gray-600">${request.reason}</p>
-            </div>
-            <p class="text-sm text-gray-500">
-              <span class="font-medium">From:</span> <b>${request.start_date}</b> |
-              <span class="font-medium">To:</span> <b>${request.end_date}</b>
-            </p>
-          </div>
-        </div>
-
-        <div class="flex flex-col space-y-2 ml-4">
-          <button
-            onclick="approveLeave(${request.id})"
-            class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors duration-200 flex items-center justify-center"
-          >
-            <i class="fas fa-check-circle mr-2"></i>
-            Approve
-          </button>
-          <button
-            onclick="rejectLeave(${request.id})"
-            class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors duration-200 flex items-center justify-center"
-          >
-            <i class="fas fa-times-circle mr-2"></i>
-            Reject
-          </button>
-        </div>
+      <div class="flex flex-col md:flex-row justify-between items-start bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
+  <!-- Employee Details Section -->
+  <div class="flex flex-col md:flex-row items-start space-y-4 md:space-y-0 md:space-x-4 flex-1">
+    <!-- Profile Picture -->
+    <img
+      src="/img/${request.employee.profile_picture}"
+      alt="${request.employee.first_name} ${request.employee.last_name}"
+      class="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
+    />
+    <!-- Employee Information -->
+    <div class="flex-1">
+      <h3 class="font-semibold text-xl text-gray-800 mb-1">
+        ${request.employee.first_name} ${request.employee.last_name}
+      </h3>
+      <p class="text-sm text-gray-600 mb-4">
+        <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+          ${request.type}
+        </span>
+        <span class="ml-2">${request.duration}</span>
+      </p>
+      <!-- Reason Section -->
+      <div class="bg-gray-50 p-4 rounded-lg mb-4">
+        <p class="text-gray-700 font-medium mb-1">Reason:</p>
+        <p class="text-gray-600">${request.reason}</p>
       </div>
+      <!-- Date Range -->
+      <p class="text-sm text-gray-500">
+        <span class="font-medium">From:</span> <b>${request.start_date}</b> |
+        <span class="font-medium">To:</span> <b>${request.end_date}</b>
+      </p>
+    </div>
+  </div>
+
+  <!-- Action Buttons Section -->
+  <div class="flex flex-row md:flex-col space-x-2 md:space-x-0 md:space-y-2 mt-4 md:mt-0 ml-0 md:ml-4">
+    <!-- Approve Button -->
+    <button
+      onclick="approveLeave(${request.id})"
+      class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors duration-200 flex items-center justify-center"
+    >
+      <i class="fas fa-check-circle mr-2"></i>
+      Approve
+    </button>
+    <!-- Reject Button -->
+    <button
+      onclick="rejectLeave(${request.id})"
+      class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors duration-200 flex items-center justify-center"
+    >
+      <i class="fas fa-times-circle mr-2"></i>
+      Reject
+    </button>
+  </div>
+</div>
     `;
 
     container.appendChild(requestElement);
