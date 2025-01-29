@@ -61,6 +61,7 @@ async function fetchLeaveRequests() {
       throw new Error("Failed to fetch leave requests");
     }
     const leaveRequests = await response.json();
+    console.log(leaveRequests);
     return leaveRequests;
   } catch (error) {
     console.error("Error fetching leave requests:", error);
@@ -71,7 +72,6 @@ async function fetchLeaveRequests() {
 // Function to render leave requests
 async function renderLeaveRequests(filteredRequests = null) {
   const leaveRequests = await fetchLeaveRequests();
-  console.log(leaveRequests);
   const container = document.getElementById("leaveRequestsContainer");
   container.innerHTML = "";
 
@@ -187,10 +187,11 @@ async function rejectLeave(id) {
 }
 
 document
-  .querySelector("#employeeDirectory")
+  .querySelector("#employeeSearch")
   .addEventListener("input", async (e) => {
     const searchTerm = e.target.value.toLowerCase();
     const employees = await fetchEmployees();
+    // console.log(employees);
 
     // Filter employees based on the search term
     const filteredEmployees = employees.filter(
@@ -206,22 +207,22 @@ document
     renderEmployeeDirectory(filteredEmployees);
   });
 
-document
-  .querySelector("#leaveRequestsContainer")
-  .addEventListener("input", async (e) => {
-    const searchTerm = e.target.value.toLowerCase();
-    const leaveRequests = await fetchLeaveRequests();
+// document
+//   .querySelector("#leaveRequestsContainer")
+//   .addEventListener("input", async (e) => {
+//     const searchTerm = e.target.value.toLowerCase();
+//     const leaveRequests = await fetchLeaveRequests();
 
-    // Filter leave requests based on the search term
-    const filteredRequests = leaveRequests.filter((request) =>
-      `${request.employees.first_name} ${request.employees.last_name}`
-        .toLowerCase()
-        .includes(searchTerm)
-    );
+//     // Filter leave requests based on the search term
+//     const filteredRequests = leaveRequests.filter((request) =>
+//       `${request.employees.first_name} ${request.employees.last_name}`
+//         .toLowerCase()
+//         .includes(searchTerm)
+//     );
 
-    // Re-render the leave requests with filtered results
-    renderLeaveRequests(filteredRequests);
-  });
+//     // Re-render the leave requests with filtered results
+//     renderLeaveRequests(filteredRequests);
+//   });
 
 document.querySelector("#leaveSearch").addEventListener("input", async (e) => {
   const searchTerm = e.target.value.toLowerCase();
@@ -232,8 +233,9 @@ document.querySelector("#leaveSearch").addEventListener("input", async (e) => {
     (request) =>
       `${request.employee.first_name} ${request.employee.last_name}`
         .toLowerCase()
-        .includes(searchTerm) && request.status === "pending"
+        .includes(searchTerm) && request.status === "Pending"
   );
+  console.log(filteredRequests);
 
   // Re-render the leave requests with filtered results
   renderLeaveRequests(filteredRequests);
