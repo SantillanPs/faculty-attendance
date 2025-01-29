@@ -138,6 +138,7 @@ document.getElementById("clockInBtn").addEventListener("click", async () => {
     if (response.ok) {
       const isClockedIn = await fetchClockStatus(selectedUserId); // Fetch the updated status
       updateClockStatus(isClockedIn); // Update the UI
+      renderCalendar(selectedUserId);
     } else {
       alert("Failed to clock in. Please try again.");
     }
